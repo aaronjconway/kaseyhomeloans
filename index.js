@@ -1,5 +1,7 @@
 console.log("v21");
 
+console.log;
+
 //disable submit till valid otp
 document.getElementById("submit_button").classList.add("off");
 document.getElementById("submit_button").disabled = true;
@@ -13,7 +15,7 @@ const observer = new MutationObserver(function (mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
       const newValue = Number(mutation.target.textContent).toLocaleString(
         "en-US",
-        { style: "currency", currency: "USD", maximumFractionDigits: 0 },
+        { style: "currency", currency: "USD", maximumFractionDigits: 0 }
       );
 
       observer.disconnect();
@@ -59,9 +61,9 @@ var previousStep = "";
 const formObserver = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
-      const visibleStepHeading =
-        mutation.target.querySelector(".step-content .form-content-heading")
-          .textContent;
+      const visibleStepHeading = mutation.target.querySelector(
+        ".step-content .form-content-heading"
+      ).textContent;
 
       const visibleStep = mutation.target;
       //if we are on a new form adn not the first page.
@@ -121,24 +123,8 @@ function clearStatus() {
   modalStatusSpan.textContent = "";
 }
 
-// functions for the stack.
-const formStack = [];
-
-function pushStack(page) {
-  formStack.push(page);
-}
-
-function popStack(page) {
-  formStack.pop(page);
-}
-// when the stack is new add the first page.
-function newStack() {
-  // stuff for adding first page
-  // when stack is empty get all of the form-step-itmes and add the first page
-}
-
 //close privacy modal
-let privacyCloseButton = document.getElementById("privacy-close");
+const privacyCloseButton = document.getElementById("privacy-close");
 privacyCloseButton.addEventListener("click", () => {
   document.getElementById("privacy-modal").style.display = "none";
 });
@@ -162,7 +148,7 @@ licenseOpenButton.addEventListener("click", () => {
 });
 
 //set initial sent time, 0 becuase ti hasn't been sent
-var prevotpSentTime = 0;
+let prevotpSentTime = 0;
 
 const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
@@ -195,7 +181,7 @@ async function sendOtp(event) {
       {
         method: "POST",
         body: data,
-      },
+      }
     );
 
     const json = await response.json();
@@ -205,7 +191,7 @@ async function sendOtp(event) {
       modal.style.display = "block";
       showModalStatus(
         `You have attempted to verify '${to}' too many times. If you received a code, enter it in the form. Otherwise, please wait 10 minutes and try again.`,
-        { color: "#a94442" },
+        { color: "#a94442" }
       );
     } else if (response.status >= 400) {
       clearStatus();
@@ -236,9 +222,10 @@ function delay(ms) {
   var counter = 5;
   const timer = setInterval(() => {
     showModalStatus(
-      "Incorrect token! please wait " + counter.toString() +
+      "Incorrect token! please wait " +
+        counter.toString() +
         " seconds before trying again.",
-      { color: "#a94442" },
+      { color: "#a94442" }
     );
     counter--;
     if (counter == 0) {
@@ -274,7 +261,7 @@ async function checkOtp(event) {
       {
         method: "POST",
         body: data,
-      },
+      }
     );
 
     const json = await response.json();
@@ -299,7 +286,7 @@ async function checkOtp(event) {
       disableButtonForFiveSeconds("check-code");
       showModalStatus(
         "Incorrect token! please wait 5 seconds before trying again.",
-        { color: "#a94442" },
+        { color: "#a94442" }
       );
       new Promise((resolve) => setTimeout(resolve, 5000));
       code.value = "";
@@ -378,5 +365,5 @@ function isEmailValid(email) {
 //automatically set mid-width of progress indicator based on 'form-step'
 var indicators = document.querySelectorAll('[data-form="progress-indicator"]');
 indicators.forEach((item) => {
-  item.style.minWidth = (1 / indicators.length * 100).toString() + "%";
+  item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
