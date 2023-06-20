@@ -1,3 +1,3 @@
 # kaseyhomeloans
 
-small functionality for the website, specifically the forms. 
+small utils for the forms on kaseyhomeloans
