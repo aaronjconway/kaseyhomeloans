@@ -1,15 +1,17 @@
-console.log("v21");
+console.log("v23");
 
-console.log;
+/*  - grug say too complex.
+ *  - do we need two observers?
+ *  - do we need mutobs for formatting at all?
+ *  why not event listenr on the slider instead.
+ *  - should we observe on css:display changes or if visible
+ *  - consolidate the modal and modalWrapper
+ */
 
-//disable submit till valid otp
-document.getElementById("submit_button").classList.add("off");
-document.getElementById("submit_button").disabled = true;
-
-// Select the target node
+// select the forms stuff
 const form = document.getElementById("form-steps-wrapper");
 
-// Create a new Mutation Observer instance to do formatting of numbers and rates
+// formattting of numbers and rate
 const observer = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
@@ -54,34 +56,33 @@ const observer = new MutationObserver(function (mutationsList) {
 
 observer.observe(form, { childList: true, subtree: true, characterData: true });
 
-//mutation observer to detemrine which form step is visible.
+//get all the steps
 const formSteps = form.querySelectorAll(".form-step");
 
+//initial step state. helpful for first setp
 var previousStep = "";
+
 const formObserver = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
+      // get the heading of the form step
       const visibleStepHeading = mutation.target.querySelector(
         ".step-content .form-content-heading"
       ).textContent;
 
       const visibleStep = mutation.target;
-      //if we are on a new form adn not the first page.
-      // have to do this since sometimes it shows mutliple updates.
+
+      // if not on the first page and we've changed form steps
       if (previousStep !== visibleStep && previousStep !== "") {
         console.log(visibleStepHeading);
-        /* on the final form step. clear any required fields
-                TODO: Temporary becuase we need a way of submitting the form
-                regardless of user path in the logic.
 
-                Yes I know this is very dumb.I don't know what I'md doing.
-
-                 */
         if (visibleStep.id == "final") {
+          console.log("were on the final step");
           const inputs = document.querySelectorAll("input");
 
           inputs.forEach((input) => {
             if (input.hasAttribute("required")) {
+              console.log("clearing input: ", input);
               input.removeAttribute("required");
             }
           });
@@ -94,13 +95,21 @@ const formObserver = new MutationObserver(function (mutationsList) {
 });
 
 // Configure and start observing each form step for style attribute changes
+// We are wathcing for display:none changes to figure out which step we're on
 const config = { attributes: true, attributeFilter: ["style"] };
+
+//why not observe just the whole form. do we need to observe each step?
 formSteps.forEach((formStep) => {
   formObserver.observe(formStep, config);
 });
 
+//status message for the phone verification
 const statusSpan = document.getElementById("status");
+
+//status message when on the modal popup phone ver
 const modalStatusSpan = document.getElementById("modal-status");
+
+//initial statusk
 showStatus("Please verify your phone...");
 
 function showModalStatus(message, options = { color: "gray" }) {
@@ -108,14 +117,14 @@ function showModalStatus(message, options = { color: "gray" }) {
   modalStatusSpan.textContent = message;
 }
 
-function showError(error) {
-  console.error(error);
-  showStatus(error, { color: "#a94442" });
-}
-
 function showStatus(message, options = { color: "gray" }) {
   statusSpan.style.color = options.color;
   statusSpan.textContent = message;
+}
+
+function showError(error) {
+  console.error(error);
+  showStatus(error, { color: "#a94442" });
 }
 
 function clearStatus() {
@@ -147,19 +156,21 @@ licenseOpenButton.addEventListener("click", () => {
   document.getElementById("license-modal").style.display = "block";
 });
 
-//set initial sent time, 0 becuase ti hasn't been sent
-let prevotpSentTime = 0;
-
+//modal div. refactor
 const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
+
+//phone number "to"; for twillio
 var to;
 
 async function sendOtp(event) {
   event.preventDefault();
 
+  // the otp pops up. Move this message to the otp page or don't need
   showStatus("Sending verification code...");
 
-  to = remove_phone_format(document.getElementById("phone_number").value);
+  //get phone number and make number
+  to = formatPhoneTwilio(document.getElementById("phone_number").value);
 
   const data = new URLSearchParams();
   data.append("channel", "sms");
@@ -173,9 +184,6 @@ async function sendOtp(event) {
   }
 
   try {
-    //set time of sent
-    prevotpSentTime = new Date().getTime();
-
     const response = await fetch(
       "https://verify-7293-cboql9.twil.io/start-verify",
       {
@@ -311,12 +319,13 @@ var phoneNumberInput = document.getElementById("phone_number");
 phoneNumberInput.addEventListener("input", function () {
   const inputValue = phoneNumberInput.value;
 
-  const formattedPhoneNumber = format_phone(inputValue);
+  const formattedPhoneNumber = formatPhoneDisplay(inputValue);
 
   phoneNumberInput.value = formattedPhoneNumber;
 });
 
-function format_phone(input) {
+//format phone number displayed to user to (xxx)-xxx-xxx
+function formatPhoneDisplay(input) {
   input = input.replace(/\D/g, "");
   var size = input.length;
   if (size > 0) input = "(" + input;
@@ -325,23 +334,23 @@ function format_phone(input) {
   return input;
 }
 
-function remove_phone_format(input) {
-  const digitsOnly = input.replace(/\D/g, "");
-  const formattedNumber = "+1" + digitsOnly;
-
+//format the phone to send to twillio
+function formatPhoneTwilio(input) {
+  //remove non digis and add country code
+  const phoneDigits = input.replace(/\D/g, "");
+  const formattedNumber = "+1" + phoneDigits;
   return formattedNumber;
 }
 
-//get email input
 var emailInput = document.getElementById("email");
 
-//add listener
+// I feel like this could go to a callback instead of inside listener
+// then can do cleaner guard  return etc
 emailInput.addEventListener("input", function () {
   emailInput.classList.remove("invalid", "valid");
 
   //wait 1sec till adding invalid class while inputting
   setTimeout(() => {
-    //get email value
     const email = emailInput.value;
 
     if (isEmailValid(email)) {
@@ -357,12 +366,19 @@ emailInput.addEventListener("input", function () {
   }, 1000);
 });
 
+//regex for checking basic email validity
 function isEmailValid(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
 //automatically set mid-width of progress indicator based on 'form-step'
+//no sure if this is working
+//fomrly creates  the same amount of progress indicators as there are steps
+//so we can use the
+//
+//don't need to set it for each one I don't think. can do the over all thingy.
+//need to look into webflow. Formly does manipulation and I'm not sure how that works.
 var indicators = document.querySelectorAll('[data-form="progress-indicator"]');
 indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
