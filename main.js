@@ -1,4 +1,4 @@
-console.log("v23");
+console.log("v24");
 
 /*  - grug say too complex.
  *  - do we need two observers?
