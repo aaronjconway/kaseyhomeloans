@@ -1,0 +1,45 @@
+# Ignore editor and IDE files
+.vscode/
+.idea/
+.eslintrc.json
+*.swp
+*.swo
+
+# Ignore Node.js specific files and directories
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Ignore build artifacts and output directories
+dist/
+build/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore environment-specific files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore backup files
+*~
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore Windows specific files
+Thumbs.db
+
+# Ignore miscellaneous files
+LICENSE
+*.zip
