@@ -1,7 +1,6 @@
-console.log("v24");
+console.log("v25");
 
-/*  - grug say too complex.
- *  - do we need two observers?
+/*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
  *  why not event listenr on the slider instead.
  *  - should we observe on css:display changes or if visible
@@ -12,7 +11,7 @@ console.log("v24");
 const form = document.getElementById("form-steps-wrapper");
 
 // formattting of numbers and rate
-const observer = new MutationObserver(function (mutationsList) {
+const observer = new MutationObserver(function(mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
       const newValue = Number(mutation.target.textContent).toLocaleString(
@@ -62,7 +61,7 @@ const formSteps = form.querySelectorAll(".form-step");
 //initial step state. helpful for first setp
 var previousStep = "";
 
-const formObserver = new MutationObserver(function (mutationsList) {
+const formObserver = new MutationObserver(function(mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
       // get the heading of the form step
@@ -106,10 +105,10 @@ formSteps.forEach((formStep) => {
 //status message for the phone verification
 const statusSpan = document.getElementById("status");
 
-//status message when on the modal popup phone ver
+//status message when on the modal popup for phone verificaiton
 const modalStatusSpan = document.getElementById("modal-status");
 
-//initial statusk
+//initial status
 showStatus("Please verify your phone...");
 
 function showModalStatus(message, options = { color: "gray" }) {
@@ -163,13 +162,15 @@ const modalwrapper = document.getElementById("otp-wrapper");
 //phone number "to"; for twillio
 var to;
 
+
+
 async function sendOtp(event) {
   event.preventDefault();
 
   // the otp pops up. Move this message to the otp page or don't need
   showStatus("Sending verification code...");
 
-  //get phone number and make number
+  //get phone number and 
   to = formatPhoneTwilio(document.getElementById("phone_number").value);
 
   const data = new URLSearchParams();
@@ -179,7 +180,7 @@ async function sendOtp(event) {
 
   // check length of phone, 12 becuase +1, before sending request
   if (data.get("to").length < 12) {
-    showStatus("This doesn't look like a valid number.");
+    showStatus("please enter a valid number");
     return;
   }
 
@@ -204,8 +205,18 @@ async function sendOtp(event) {
     } else if (response.status >= 400) {
       clearStatus();
       console.log(json.error);
-      showError("Is " + to + " a valid number? Please wait 5 seconds.");
-      disableButtonForFiveSeconds("send-code");
+      document.getElementById('send-code').disabled = true
+      let seconds = 10;
+      const interval = setInterval(() => {
+        showError("Is " + to + `a valid number? Please wait ${seconds} seconds.`);
+        seconds--;
+
+        if (seconds < 0) {
+          document.getElementById('send-code').disabled = false
+          clearInterval(interval);
+        }
+      }, 1000);
+
     } else {
       modal.style.display = "block";
       modalwrapper.style.display = "block";
@@ -226,37 +237,11 @@ document
   .getElementById("send-code")
   .addEventListener("click", (event) => sendOtp(event));
 
-function delay(ms) {
-  var counter = 5;
-  const timer = setInterval(() => {
-    showModalStatus(
-      "Incorrect token! please wait " +
-        counter.toString() +
-        " seconds before trying again.",
-      { color: "#a94442" }
-    );
-    counter--;
-    if (counter == 0) {
-      clearInterval(timer);
-    }
-  }, 1000);
-
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function disableButtonForFiveSeconds(id) {
-  const button = document.getElementById(id); // Replace 'myButton' with the ID of your button
-
-  button.disabled = true; // Disable the button
-  button.classList.add("off");
-  await delay(5000); // Wait for 5 seconds using the delay() function
-  button.disabled = false; // Enable the button after 5 seconds
-  button.classList.remove("off");
-}
-
 async function checkOtp(event) {
+
   event.preventDefault();
   let code = document.getElementById("code");
+
   showModalStatus(`Checking code ${code.value}...`);
 
   const data = new URLSearchParams();
@@ -275,14 +260,13 @@ async function checkOtp(event) {
     const json = await response.json();
 
     if (json.success) {
-      document.getElementById("submit_button").classList.remove("off");
-      document.getElementById("submit_button").disabled = false;
       showModalStatus("Verification success! Redirecting...", {
         color: "green",
       });
       code.value = "";
+
       //show success and auto close
-      setTimeout(function () {
+      setTimeout(function() {
         modal.style.display = "none";
         modalwrapper.style.display = "none";
         document.getElementById("send-code").style.display = "none";
@@ -291,13 +275,7 @@ async function checkOtp(event) {
         clearStatus();
       }, 2000);
     } else {
-      disableButtonForFiveSeconds("check-code");
-      showModalStatus(
-        "Incorrect token! please wait 5 seconds before trying again.",
-        { color: "#a94442" }
-      );
-      new Promise((resolve) => setTimeout(resolve, 5000));
-      code.value = "";
+      showModalStatus('incorrect token')
     }
   } catch (error) {
     console.error(error);
@@ -306,21 +284,23 @@ async function checkOtp(event) {
   }
 }
 
+//check verificaiton code button
 let checkCode = document.getElementById("check-code");
 checkCode.addEventListener("click", (event) => checkOtp(event));
 
+//close modal
 let closeButton = document.getElementById("close");
 closeButton.addEventListener("click", () => {
   modal.style.display = "none";
+  showModalStatus("");
 });
 
+//get phone number
 var phoneNumberInput = document.getElementById("phone_number");
 
-phoneNumberInput.addEventListener("input", function () {
-  const inputValue = phoneNumberInput.value;
-
-  const formattedPhoneNumber = formatPhoneDisplay(inputValue);
-
+//format phone number
+phoneNumberInput.addEventListener("input", function() {
+  const formattedPhoneNumber = formatPhoneDisplay(phoneNumberInput.value);
   phoneNumberInput.value = formattedPhoneNumber;
 });
 
@@ -334,7 +314,7 @@ function formatPhoneDisplay(input) {
   return input;
 }
 
-//format the phone to send to twillio
+//format the phone to send to twillio with +1 and as a string
 function formatPhoneTwilio(input) {
   //remove non digis and add country code
   const phoneDigits = input.replace(/\D/g, "");
@@ -344,9 +324,7 @@ function formatPhoneTwilio(input) {
 
 var emailInput = document.getElementById("email");
 
-// I feel like this could go to a callback instead of inside listener
-// then can do cleaner guard  return etc
-emailInput.addEventListener("input", function () {
+emailInput.addEventListener("input", function() {
   emailInput.classList.remove("invalid", "valid");
 
   //wait 1sec till adding invalid class while inputting
@@ -354,13 +332,17 @@ emailInput.addEventListener("input", function () {
     const email = emailInput.value;
 
     if (isEmailValid(email)) {
+
       // add valid class
       emailInput.classList.add("valid");
+
     } else if (email == "") {
+
       //remove all classes
       emailInput.classList.remove("invalid", "valid");
     } else {
-      //invliad clas
+
+      //invalid clas
       emailInput.classList.add("invalid");
     }
   }, 1000);
@@ -372,14 +354,18 @@ function isEmailValid(email) {
   return emailRegex.test(email);
 }
 
-//automatically set mid-width of progress indicator based on 'form-step'
-//no sure if this is working
-//fomrly creates  the same amount of progress indicators as there are steps
-//so we can use the
-//
-//don't need to set it for each one I don't think. can do the over all thingy.
-//need to look into webflow. Formly does manipulation and I'm not sure how that works.
 var indicators = document.querySelectorAll('[data-form="progress-indicator"]');
 indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
+
+const submitBtn = document.getElementById('submit_button')
+
+submitBtn.addEventListener('submit', (event) => {
+  if (!emailInput.classList.contains('valid')) {
+    event.preventDefault()
+    showStatus('Please fill in both email and phone')
+  }
+})
+
+
