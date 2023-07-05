@@ -1,4 +1,4 @@
-console.log("v25");
+console.log("v26");
 
 /*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
@@ -362,10 +362,22 @@ indicators.forEach((item) => {
 const submitBtn = document.getElementById('submit_button')
 
 submitBtn.addEventListener('submit', (event) => {
-  if (!emailInput.classList.contains('valid')) {
+  if (!phoneNumberInput.classList.contains('valid') || !emailInput.classList.contains('valid')) {
     event.preventDefault()
     showStatus('Please fill in both email and phone')
   }
 })
 
+window.onbeforeunload = function() {
+  resetForm();
+}
+
+function resetForm() {
+
+  // Get the form element by its ID
+  var form = document.getElementById("wf-form-refinance-v1");
+  // Reset the form
+
+  form.reset();
+}
 
