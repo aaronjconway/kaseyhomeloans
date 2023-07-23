@@ -394,13 +394,25 @@ indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
 
+Webflow.push(function() {
+  // Disable submitting form fields during development
+  $('form').submit(function() {
+    //if either is not true return flase
+    if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
+      return;
+    } else {
+      showError('no')
+      alert('no')
+      return false
+    }
+
+  });
+});
+
 const submitBtn = document.getElementById('submit_button')
+
 //let's see!
 submitBtn.addEventListener('submit', (event) => {
-  if (!phoneNumberInput.classList.contains('valid') || !emailInput.classList.contains('valid')) {
-    event.preventDefault()
-    showError('Please fill in both email and phone')
-  }
 })
 
 //reset on reload
