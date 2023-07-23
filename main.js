@@ -1,4 +1,4 @@
-console.log("v26");
+console.log("v27");
 
 /*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
@@ -7,8 +7,9 @@ console.log("v26");
  *  - consolidate the modal and modalWrapper
  */
 
-// select the forms stuff
 const form = document.getElementById("form-steps-wrapper");
+
+document.getElementById("submit_button").disabled = true;
 
 // formattting of numbers and rate
 const observer = new MutationObserver(function(mutationsList) {
@@ -73,15 +74,12 @@ const formObserver = new MutationObserver(function(mutationsList) {
 
       // if not on the first page and we've changed form steps
       if (previousStep !== visibleStep && previousStep !== "") {
-        console.log(visibleStepHeading);
 
         if (visibleStep.id == "final") {
-          console.log("were on the final step");
           const inputs = document.querySelectorAll("input");
 
           inputs.forEach((input) => {
             if (input.hasAttribute("required")) {
-              console.log("clearing input: ", input);
               input.removeAttribute("required");
             }
           });
@@ -155,32 +153,68 @@ licenseOpenButton.addEventListener("click", () => {
   document.getElementById("license-modal").style.display = "block";
 });
 
-//modal div. refactor
+//modal div. TODO: refactor. why are there two
 const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
 
+//do not allow the send code button if bad number
+async function handleSendCode() {
+  var button = document.getElementById("send-code");
+  var originalText = button.textContent;
+  button.disabled = true; // Disable the button
+
+  let remainingTime = 10;
+  showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+
+  const intervalId = setInterval(() => {
+    remainingTime--;
+    showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+
+    if (remainingTime === 0) {
+      clearInterval(intervalId);
+      button.disabled = false; // Enable the button after 10 seconds
+      button.textContent = originalText;
+    }
+  }, 1000);
+}
+
+async function handleVerifyCode() {
+  var button = document.getElementById("check-code");
+  var originalText = button.textContent;
+  button.disabled = true;
+
+  let remainingTime = 10;
+  showError(`Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`)
+
+  const intervalId = setInterval(() => {
+    remainingTime--;
+    showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+
+    if (remainingTime === 0) {
+      clearInterval(intervalId);
+      button.disabled = false; // Enable the button after 10 seconds
+      button.textContent = originalText;
+    }
+  }, 1000);
+}
 //phone number "to"; for twillio
 var to;
-
-
 
 async function sendOtp(event) {
   event.preventDefault();
 
-  // the otp pops up. Move this message to the otp page or don't need
   showStatus("Sending verification code...");
-
-  //get phone number and 
   to = formatPhoneTwilio(document.getElementById("phone_number").value);
 
   const data = new URLSearchParams();
+
   data.append("channel", "sms");
   data.append("locale", "en");
   data.append("to", to);
 
   // check length of phone, 12 becuase +1, before sending request
   if (data.get("to").length < 12) {
-    showStatus("please enter a valid number");
+    showError("please enter a phone number");
     return;
   }
 
@@ -197,34 +231,33 @@ async function sendOtp(event) {
 
     if (response.status == 429) {
       clearStatus();
+
       modal.style.display = "block";
+
       showModalStatus(
         `You have attempted to verify '${to}' too many times. If you received a code, enter it in the form. Otherwise, please wait 10 minutes and try again.`,
         { color: "#a94442" }
       );
-    } else if (response.status >= 400) {
-      clearStatus();
-      console.log(json.error);
-      document.getElementById('send-code').disabled = true
-      let seconds = 10;
-      const interval = setInterval(() => {
-        showError("Is " + to + `a valid number? Please wait ${seconds} seconds.`);
-        seconds--;
 
-        if (seconds < 0) {
-          document.getElementById('send-code').disabled = false
-          clearInterval(interval);
-        }
-      }, 1000);
+    } else if (response.status >= 400) {
+
+      clearStatus();
+
+      console.log(json.error);
+
+      handleSendCode()
+
 
     } else {
       modal.style.display = "block";
       modalwrapper.style.display = "block";
+
       if (json.success) {
         showStatus(`Sent verification code to ${to}`);
       } else {
         console.log(json.error);
         showError("Is " + to + " a valid number?");
+        handleSendCode()
       }
     }
   } catch (error) {
@@ -276,10 +309,12 @@ async function checkOtp(event) {
       }, 2000);
     } else {
       showModalStatus('incorrect token')
+      handleVerifyCode()
     }
   } catch (error) {
     console.error(error);
     showModalStatus("Something went wrong!");
+    handleVerifyCode()
     code.value = "";
   }
 }
@@ -360,14 +395,15 @@ indicators.forEach((item) => {
 });
 
 const submitBtn = document.getElementById('submit_button')
-
+//let's see!
 submitBtn.addEventListener('submit', (event) => {
   if (!phoneNumberInput.classList.contains('valid') || !emailInput.classList.contains('valid')) {
     event.preventDefault()
-    showStatus('Please fill in both email and phone')
+    showError('Please fill in both email and phone')
   }
 })
 
+//reset on reload
 window.onbeforeunload = function() {
   resetForm();
 }
