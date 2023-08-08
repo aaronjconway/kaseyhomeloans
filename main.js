@@ -1,5 +1,4 @@
-console.log("v28");
-
+//version 1
 /*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
  *  why not event listenr on the slider instead.
@@ -12,7 +11,7 @@ const form = document.getElementById("form-steps-wrapper");
 document.getElementById("submit_button").disabled = true;
 
 // formattting of numbers and rate
-const observer = new MutationObserver(function(mutationsList) {
+const observer = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
       const newValue = Number(mutation.target.textContent).toLocaleString(
@@ -62,7 +61,7 @@ const formSteps = form.querySelectorAll(".form-step");
 //initial step state. helpful for first setp
 var previousStep = "";
 
-const formObserver = new MutationObserver(function(mutationsList) {
+const formObserver = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
       // get the heading of the form step
@@ -171,6 +170,7 @@ async function handleSendCode() {
     showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
 
     if (remainingTime === 0) {
+      clearStatus()
       clearInterval(intervalId);
       button.disabled = false; // Enable the button after 10 seconds
       button.textContent = originalText;
@@ -184,11 +184,11 @@ async function handleVerifyCode() {
   button.disabled = true;
 
   let remainingTime = 10;
-  showError(`Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`)
+  showModalStatus(`Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`)
 
   const intervalId = setInterval(() => {
     remainingTime--;
-    showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+    showModalStatus(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
 
     if (remainingTime === 0) {
       clearInterval(intervalId);
@@ -299,7 +299,7 @@ async function checkOtp(event) {
       code.value = "";
 
       //show success and auto close
-      setTimeout(function() {
+      setTimeout(function () {
         modal.style.display = "none";
         modalwrapper.style.display = "none";
         document.getElementById("send-code").style.display = "none";
@@ -334,7 +334,7 @@ closeButton.addEventListener("click", () => {
 var phoneNumberInput = document.getElementById("phone_number");
 
 //format phone number
-phoneNumberInput.addEventListener("input", function() {
+phoneNumberInput.addEventListener("input", function () {
   const formattedPhoneNumber = formatPhoneDisplay(phoneNumberInput.value);
   phoneNumberInput.value = formattedPhoneNumber;
 });
@@ -359,7 +359,7 @@ function formatPhoneTwilio(input) {
 
 var emailInput = document.getElementById("email");
 
-emailInput.addEventListener("input", function() {
+emailInput.addEventListener("input", function () {
   emailInput.classList.remove("invalid", "valid");
 
   //wait 1sec till adding invalid class while inputting
@@ -394,15 +394,21 @@ indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
 
-Webflow.push(function() {
+Webflow.push(function () {
+
   // Disable submitting form fields during development
-  $('form').submit(function() {
-    //if either is not true return flase
+  $('form').submit(function () {
+
+    //check that both phone and email are valid
     if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
+      console.log('both phone and email are validk')
+      console.log('submitting form')
       return;
+
     } else {
-      showError('no')
-      alert('no')
+      showError('you need to fill out **dsilay which error**')
+
+      console.log('either phone or emial is not validk')
       return false
     }
 
@@ -411,21 +417,8 @@ Webflow.push(function() {
 
 const submitBtn = document.getElementById('submit_button')
 
-//let's see!
-submitBtn.addEventListener('submit', (event) => {
-})
-
 //reset on reload
-window.onbeforeunload = function() {
-  resetForm();
-}
-
-function resetForm() {
-
-  // Get the form element by its ID
+window.onbeforeunload = function () {
   var form = document.getElementById("wf-form-refinance-v1");
-  // Reset the form
-
   form.reset();
 }
-
