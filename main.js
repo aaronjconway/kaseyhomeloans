@@ -1,4 +1,5 @@
-//version 1
+console.log('version 1')
+
 /*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
  *  why not event listenr on the slider instead.
@@ -156,10 +157,9 @@ licenseOpenButton.addEventListener("click", () => {
 const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
 
-//do not allow the send code button if bad number
 async function handleSendCode() {
+
   var button = document.getElementById("send-code");
-  var originalText = button.textContent;
   button.disabled = true; // Disable the button
 
   let remainingTime = 10;
@@ -178,9 +178,8 @@ async function handleSendCode() {
   }, 1000);
 }
 
-async function handleVerifyCode() {
+function handleVerifyCode() {
   var button = document.getElementById("check-code");
-  var originalText = button.textContent;
   button.disabled = true;
 
   let remainingTime = 10;
@@ -200,6 +199,8 @@ async function handleVerifyCode() {
 //phone number "to"; for twillio
 var to;
 
+
+//sends the otp
 async function sendOtp(event) {
   event.preventDefault();
 
@@ -212,7 +213,6 @@ async function sendOtp(event) {
   data.append("locale", "en");
   data.append("to", to);
 
-  // check length of phone, 12 becuase +1, before sending request
   if (data.get("to").length < 12) {
     showError("please enter a phone number");
     return;
@@ -401,14 +401,10 @@ Webflow.push(function () {
 
     //check that both phone and email are valid
     if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
-      console.log('both phone and email are validk')
-      console.log('submitting form')
       return;
 
     } else {
-      showError('you need to fill out **dsilay which error**')
-
-      console.log('either phone or emial is not validk')
+      showError('Please complete both phone and email.')
       return false
     }
 
