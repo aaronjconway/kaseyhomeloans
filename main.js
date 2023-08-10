@@ -12,7 +12,7 @@ const form = document.getElementById("form-steps-wrapper");
 document.getElementById("submit_button").disabled = true;
 
 // formattting of numbers and rate
-const observer = new MutationObserver(function (mutationsList) {
+const observer = new MutationObserver(function(mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
       const newValue = Number(mutation.target.textContent).toLocaleString(
@@ -62,7 +62,7 @@ const formSteps = form.querySelectorAll(".form-step");
 //initial step state. helpful for first setp
 var previousStep = "";
 
-const formObserver = new MutationObserver(function (mutationsList) {
+const formObserver = new MutationObserver(function(mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
       // get the heading of the form step
@@ -178,21 +178,33 @@ async function handleSendCode() {
   }, 1000);
 }
 
+//function to disabled button when phone is bad
 function handleVerifyCode() {
-  var button = document.getElementById("check-code");
-  button.disabled = true;
+
+  //get and add disabled class
+  document.getElementById("check-code").classList.add('disabled')
+  const originalText = document.getElementById("check-code").textContent
 
   let remainingTime = 10;
+
+  //set status to ask if correct
   showModalStatus(`Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`)
 
-  const intervalId = setInterval(() => {
+  const timer = setInterval(() => {
+
     remainingTime--;
+
+    //update the remainingTime
     showModalStatus(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
 
     if (remainingTime === 0) {
-      clearInterval(intervalId);
-      button.disabled = false; // Enable the button after 10 seconds
-      button.textContent = originalText;
+      clearInterval(timer);
+
+      //remove disabled class
+      document.getElementById("check-code").classList.remove('disabled')
+
+      //update the remainingTime
+      showModalStatus(`Please try again`)
     }
   }, 1000);
 }
@@ -299,7 +311,7 @@ async function checkOtp(event) {
       code.value = "";
 
       //show success and auto close
-      setTimeout(function () {
+      setTimeout(function() {
         modal.style.display = "none";
         modalwrapper.style.display = "none";
         document.getElementById("send-code").style.display = "none";
@@ -334,7 +346,7 @@ closeButton.addEventListener("click", () => {
 var phoneNumberInput = document.getElementById("phone_number");
 
 //format phone number
-phoneNumberInput.addEventListener("input", function () {
+phoneNumberInput.addEventListener("input", function() {
   const formattedPhoneNumber = formatPhoneDisplay(phoneNumberInput.value);
   phoneNumberInput.value = formattedPhoneNumber;
 });
@@ -359,7 +371,7 @@ function formatPhoneTwilio(input) {
 
 var emailInput = document.getElementById("email");
 
-emailInput.addEventListener("input", function () {
+emailInput.addEventListener("input", function() {
   emailInput.classList.remove("invalid", "valid");
 
   //wait 1sec till adding invalid class while inputting
@@ -394,10 +406,10 @@ indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
 
-Webflow.push(function () {
+Webflow.push(function() {
 
   // Disable submitting form fields during development
-  $('form').submit(function () {
+  $('form').submit(function() {
 
     //check that both phone and email are valid
     if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
@@ -414,7 +426,7 @@ Webflow.push(function () {
 const submitBtn = document.getElementById('submit_button')
 
 //reset on reload
-window.onbeforeunload = function () {
+window.onbeforeunload = function() {
   var form = document.getElementById("wf-form-refinance-v1");
   form.reset();
 }
