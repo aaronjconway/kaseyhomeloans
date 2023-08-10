@@ -120,7 +120,6 @@ function showStatus(message, options = { color: "gray" }) {
 }
 
 function showError(error) {
-  console.error(error);
   showStatus(error, { color: "#a94442" });
 }
 
@@ -159,21 +158,27 @@ const modalwrapper = document.getElementById("otp-wrapper");
 
 async function handleSendCode() {
 
-  var button = document.getElementById("send-code");
-  button.disabled = true; // Disable the button
+  //get and add disabled class
+  document.getElementById("send-code").classList.add('disabled')
+  const originalText = document.getElementById("send-code").textContent
 
   let remainingTime = 10;
   showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
 
-  const intervalId = setInterval(() => {
+  const timer = setInterval(() => {
     remainingTime--;
     showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
 
     if (remainingTime === 0) {
       clearStatus()
-      clearInterval(intervalId);
-      button.disabled = false; // Enable the button after 10 seconds
-      button.textContent = originalText;
+      clearInterval(timer);
+
+      //remove disabled class
+      document.getElementById("send-code").classList.remove('disabled')
+
+      //update the remainingTime
+      showStatus(`Please try again`)
+
     }
   }, 1000);
 }
