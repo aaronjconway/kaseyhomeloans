@@ -191,7 +191,7 @@ function handleVerifyCode() {
 
   //disable class and turn off click
   document.getElementById("check-code").classList.add('disabled')
-  document.getElementById("send-code").style.pointerEvents = 'none'
+  document.getElementById("check-code").style.pointerEvents = 'none'
 
   const originalText = document.getElementById("check-code").textContent
 
@@ -212,7 +212,7 @@ function handleVerifyCode() {
 
       //re-enable
       document.getElementById("check-code").classList.remove('disabled')
-      document.getElementById("send-code").style.pointerEvents = 'auto'
+      document.getElementById("check-code").style.pointerEvents = 'auto'
 
       //update the remainingTime
       showModalStatus(`Please try again`)
