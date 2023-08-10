@@ -160,6 +160,8 @@ async function handleSendCode() {
 
   //get and add disabled class
   document.getElementById("send-code").classList.add('disabled')
+  document.getElementById("send-code").style.pointerEvents = 'none'
+
   const originalText = document.getElementById("send-code").textContent
 
   let remainingTime = 10;
@@ -175,6 +177,7 @@ async function handleSendCode() {
 
       //remove disabled class
       document.getElementById("send-code").classList.remove('disabled')
+      document.getElementById("send-code").style.pointerEvents = 'auto'
 
       //update the remainingTime
       showStatus(`Please try again`)
@@ -186,8 +189,10 @@ async function handleSendCode() {
 //function to disabled button when phone is bad
 function handleVerifyCode() {
 
-  //get and add disabled class
+  //disable class and turn off click
   document.getElementById("check-code").classList.add('disabled')
+  document.getElementById("send-code").style.pointerEvents = 'none'
+
   const originalText = document.getElementById("check-code").textContent
 
   let remainingTime = 10;
@@ -205,8 +210,9 @@ function handleVerifyCode() {
     if (remainingTime === 0) {
       clearInterval(timer);
 
-      //remove disabled class
+      //re-enable
       document.getElementById("check-code").classList.remove('disabled')
+      document.getElementById("send-code").style.pointerEvents = 'auto'
 
       //update the remainingTime
       showModalStatus(`Please try again`)
