@@ -439,7 +439,7 @@ const submitBtn = document.getElementById('submit_button')
 
 //reset on reload
 window.onbeforeunload = function() {
-	const form = $("[id^='wf-form']")
+	const form = $("[id^='wf-form']")[0]
   form.reset();
 }
 
@@ -534,8 +534,8 @@ Webflow.push(function() {
 
 	}
 
-  //check for the form. 
-	const form = $("[id^='wf-form']")
+  //find the form. Have to [0] bc ^= returns an object.
+	const form = $("[id^='wf-form']")[0]
 
 	// set the Webflow Error Message Div Block ID to 'error-message'
 	let failureMessage = document.getElementById('error-message');
