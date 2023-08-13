@@ -7,7 +7,7 @@ console.log('version 1')
  *  - consolidate the modal and modalWrapper
  */
 
-const form = document.getElementById("form-steps-wrapper");
+const formWrapper = document.getElementById("form-steps-wrapper");
 
 document.getElementById("submit_button").disabled = true;
 
@@ -28,7 +28,7 @@ const observer = new MutationObserver(function(mutationsList) {
         mutation.target.textContent = newValue;
       }
 
-      observer.observe(form, {
+      observer.observe(formWrapper, {
         childList: true,
         subtree: true,
         characterData: true,
@@ -45,7 +45,7 @@ const observer = new MutationObserver(function(mutationsList) {
       } else {
         mutation.target.textContent = newRateValue;
       }
-      observer.observe(form, {
+      observer.observe(formWrapper, {
         childList: true,
         subtree: true,
         characterData: true,
@@ -54,10 +54,10 @@ const observer = new MutationObserver(function(mutationsList) {
   }
 });
 
-observer.observe(form, { childList: true, subtree: true, characterData: true });
+observer.observe(formWrapper, { childList: true, subtree: true, characterData: true });
 
 //get all the steps
-const formSteps = form.querySelectorAll(".form-step");
+const formSteps = formWrapper.querySelectorAll(".form-step");
 
 //initial step state. helpful for first setp
 var previousStep = "";
@@ -439,7 +439,7 @@ const submitBtn = document.getElementById('submit_button')
 
 //reset on reload
 window.onbeforeunload = function() {
-  var form = document.getElementById("wf-form-refinance-v1");
+	const form = $("[id^='wf-form']")
   form.reset();
 }
 
@@ -552,11 +552,5 @@ Webflow.push(function() {
 
 	// capture form submit
 	form.addEventListener('submit', triggerSubmit);
-
-});
-//testing
-Webflow.push(function() {
-
-  $('form').addEventListener('submit', triggerSubmit)
 
 });
