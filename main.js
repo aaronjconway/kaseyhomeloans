@@ -342,7 +342,7 @@ async function checkOtp(event) {
   }
 }
 
-//check verificaiton code button
+//check verification code button
 let checkCode = document.getElementById("check-code");
 checkCode.addEventListener("click", (event) => checkOtp(event));
 
@@ -374,6 +374,7 @@ function formatPhoneDisplay(input) {
 
 //format the phone to send to twillio with +1 and as a string
 function formatPhoneTwilio(input) {
+
   //remove non digis and add country code
   const phoneDigits = input.replace(/\D/g, "");
   const formattedNumber = "+1" + phoneDigits;
@@ -382,10 +383,11 @@ function formatPhoneTwilio(input) {
 
 var emailInput = document.getElementById("email");
 
+
+//listen for input events and wait to format for 1.5s
 emailInput.addEventListener("input", function() {
   emailInput.classList.remove("invalid", "valid");
 
-  //wait 1sec till adding invalid class while inputting
   setTimeout(() => {
     const email = emailInput.value;
 
@@ -400,39 +402,38 @@ emailInput.addEventListener("input", function() {
       emailInput.classList.remove("invalid", "valid");
     } else {
 
-      //invalid clas
+      //invalid class
       emailInput.classList.add("invalid");
     }
-  }, 1000);
+  }, 1500);
 });
 
-//regex for checking basic email validity
 function isEmailValid(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
+//set the indicator length
 var indicators = document.querySelectorAll('[data-form="progress-indicator"]');
 indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
 
-Webflow.push(function() {
+// Webflow.push(function() {
 
-  // Disable submitting form fields during development
-  $('form').submit(function() {
+//   $('form').submit(function() {
+//     if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
 
-    //check that both phone and email are valid
-    if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
-      return;
+//       //todo: add privacy policy check
+//       return;
 
-    } else {
-      showError('Please complete both phone and email.')
-      return false
-    }
+//     } else {
+//       showError('Please complete both phone and email.')
+//       return false
+//     }
 
-  });
-});
+//   });
+// });
 
 const submitBtn = document.getElementById('submit_button')
 
@@ -441,3 +442,121 @@ window.onbeforeunload = function() {
   var form = document.getElementById("wf-form-refinance-v1");
   form.reset();
 }
+
+
+var Webflow = Webflow || [];
+Webflow.push(function() {
+
+  $(document).off('submit')
+
+	// display error message
+	function displayError(message) {
+		hideLoading();
+		failureMessage.innerText = message;
+		failureMessage.style.display = 'block';
+	}
+
+	// hiding the loading indicator
+	function hideLoading() {
+		showForm();
+		successMessage.style.display = 'none';
+	}
+
+	// hide the form
+	function hideForm() {
+		form.style.display = 'none';
+	}
+
+	// show the loading indicator
+	function showLoading() {
+		hideForm();
+		successMessage.style.display = 'block';
+	}
+
+	// show the form
+	function showForm() {
+		form.style.display = 'block';
+	}
+
+	// listen for xhr events
+	function addListeners(xhr) {
+		xhr.addEventListener('loadstart', showLoading);
+	}
+
+	// add xhr settings
+	function addSettings(xhr) {
+		xhr.timeout = requestTimeout;
+	}
+
+	// triggered form submit 
+	function triggerSubmit(event) {
+
+		event.preventDefault();
+
+		// setup + send xhr request
+		let formData = new FormData(event.target);
+		let xhr = new XMLHttpRequest();
+
+    if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
+
+
+
+      // original
+      // xhr.open('POST', event.srcElement.action);
+
+      //testing
+      xhr.open('POST', "https://eoyf4snr26od3cm.m.pipedream.net");
+
+      addListeners(xhr);
+      addSettings(xhr);
+      xhr.send(formData);
+
+      // capture xhr response
+      xhr.onload = function() {
+        if (xhr.status === 302) {
+          let data = JSON.parse(xhr.responseText);
+          console.log(data)
+          window.location.assign(event.srcElement.dataset.redirect + data.slug);
+        } else {
+          displayError(errorMessage);
+        }
+      }
+
+      // capture xhr request timeout
+      xhr.ontimeout = function() {
+        displayError(errorMessageTimedOut);
+      }
+
+    } else {
+      showError('Please complete both phone and email.')
+      return false
+    }
+
+	}
+
+  //check for the form. 
+	const form = $("[id^='wf-form']")
+
+	// set the Webflow Error Message Div Block ID to 'error-message'
+	let failureMessage = document.getElementById('error-message');
+
+	// set the Webflow Success Message Div Block ID to 'success-message'
+	let successMessage = document.getElementById('success-message');
+
+	// set request timeout in milliseconds (1000ms = 1second)
+	let requestTimeout = 10000;
+
+	// error messages
+	let errorMessageTimedOut = 'Oops! Seems this timed out. Please try again.';
+	let errorMessage = 'Oops! Something went wrong. Please try again.';
+
+	// capture form submit
+	form.addEventListener('submit', triggerSubmit);
+
+});
+//testing
+Webflow.push(function() {
+
+  $('form').addEventListener('submit', triggerSubmit)
+
+});
