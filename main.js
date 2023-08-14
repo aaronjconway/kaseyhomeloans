@@ -1,4 +1,4 @@
-console.log('version 1')
+console.log("version 1");
 
 /*  - do we need two observers?
  *  - do we need mutobs for formatting at all?
@@ -12,7 +12,7 @@ const formWrapper = document.getElementById("form-steps-wrapper");
 document.getElementById("submit_button").disabled = true;
 
 // formattting of numbers and rate
-const observer = new MutationObserver(function(mutationsList) {
+const observer = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.target.getAttribute("formatter") === "money") {
       const newValue = Number(mutation.target.textContent).toLocaleString(
@@ -54,7 +54,11 @@ const observer = new MutationObserver(function(mutationsList) {
   }
 });
 
-observer.observe(formWrapper, { childList: true, subtree: true, characterData: true });
+observer.observe(formWrapper, {
+  childList: true,
+  subtree: true,
+  characterData: true,
+});
 
 //get all the steps
 const formSteps = formWrapper.querySelectorAll(".form-step");
@@ -62,7 +66,7 @@ const formSteps = formWrapper.querySelectorAll(".form-step");
 //initial step state. helpful for first setp
 var previousStep = "";
 
-const formObserver = new MutationObserver(function(mutationsList) {
+const formObserver = new MutationObserver(function (mutationsList) {
   for (const mutation of mutationsList) {
     if (mutation.type === "attributes" && mutation.attributeName === "style") {
       // get the heading of the form step
@@ -74,7 +78,6 @@ const formObserver = new MutationObserver(function(mutationsList) {
 
       // if not on the first page and we've changed form steps
       if (previousStep !== visibleStep && previousStep !== "") {
-
         if (visibleStep.id == "final") {
           const inputs = document.querySelectorAll("input");
 
@@ -91,7 +94,6 @@ const formObserver = new MutationObserver(function(mutationsList) {
   }
 });
 
-// Configure and start observing each form step for style attribute changes
 // We are wathcing for display:none changes to figure out which step we're on
 const config = { attributes: true, attributeFilter: ["style"] };
 
@@ -157,71 +159,79 @@ const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
 
 async function handleSendCode() {
-
   //get and add disabled class
-  document.getElementById("send-code").classList.add('disabled')
-  document.getElementById("send-code").style.pointerEvents = 'none'
+  document.getElementById("send-code").classList.add("disabled");
+  document.getElementById("send-code").style.pointerEvents = "none";
 
-  const originalText = document.getElementById("send-code").textContent
+  const originalText = document.getElementById("send-code").textContent;
 
   let remainingTime = 10;
-  showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+  showError(
+    `Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`
+  );
 
   const timer = setInterval(() => {
     remainingTime--;
-    showError(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+    showError(
+      `Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`
+    );
 
     if (remainingTime === 0) {
-      clearStatus()
+      clearStatus();
       clearInterval(timer);
 
       //remove disabled class
-      document.getElementById("send-code").classList.remove('disabled')
-      document.getElementById("send-code").style.pointerEvents = 'auto'
+      document.getElementById("send-code").classList.remove("disabled");
+      document.getElementById("send-code").style.pointerEvents = "auto";
 
       //update the remainingTime
-      showStatus(`Please try again`)
-
+      showStatus(`Please try again`);
     }
   }, 1000);
 }
 
 //function to disabled button when phone is bad
 function handleVerifyCode() {
-
   //disable class and turn off click
-  document.getElementById("check-code").classList.add('disabled')
-  document.getElementById("check-code").style.pointerEvents = 'none'
+  document.getElementById("check-code").classList.add("disabled");
+  document.getElementById("check-code").style.pointerEvents = "none";
 
-  const originalText = document.getElementById("check-code").textContent
+  const originalText = document.getElementById("check-code").textContent;
 
   let remainingTime = 10;
 
   //set status to ask if correct
-  showModalStatus(`Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`)
+  showModalStatus(
+    `Is ${code.value} correct? Please wait ${remainingTime} seconds to try again`
+  );
 
   const timer = setInterval(() => {
-
     remainingTime--;
 
     //update the remainingTime
-    showModalStatus(`Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`)
+    showModalStatus(
+      `Is ${to} a valid number? Please wait ${remainingTime} seconds to try again`
+    );
 
     if (remainingTime === 0) {
       clearInterval(timer);
 
       //re-enable
-      document.getElementById("check-code").classList.remove('disabled')
-      document.getElementById("check-code").style.pointerEvents = 'auto'
+      document.getElementById("check-code").classList.remove("disabled");
+      document.getElementById("check-code").style.pointerEvents = "auto";
 
       //update the remainingTime
-      showModalStatus(`Please try again`)
+      showModalStatus(`Please try again`);
     }
   }, 1000);
 }
+
 //phone number "to"; for twillio
 var to;
 
+document
+  .getElementById("send-code")
+  .addEventListener("click", (event) => sendOtp(event));
 
 //sends the otp
 async function sendOtp(event) {
@@ -261,16 +271,12 @@ async function sendOtp(event) {
         `You have attempted to verify '${to}' too many times. If you received a code, enter it in the form. Otherwise, please wait 10 minutes and try again.`,
         { color: "#a94442" }
       );
-
     } else if (response.status >= 400) {
-
       clearStatus();
 
       console.log(json.error);
 
-      handleSendCode()
-
-
+      handleSendCode();
     } else {
       modal.style.display = "block";
       modalwrapper.style.display = "block";
@@ -280,7 +286,7 @@ async function sendOtp(event) {
       } else {
         console.log(json.error);
         showError("Is " + to + " a valid number?");
-        handleSendCode()
+        handleSendCode();
       }
     }
   } catch (error) {
@@ -289,12 +295,8 @@ async function sendOtp(event) {
   }
 }
 
-document
-  .getElementById("send-code")
-  .addEventListener("click", (event) => sendOtp(event));
-
+//checks the otp
 async function checkOtp(event) {
-
   event.preventDefault();
   let code = document.getElementById("code");
 
@@ -322,7 +324,7 @@ async function checkOtp(event) {
       code.value = "";
 
       //show success and auto close
-      setTimeout(function() {
+      setTimeout(function () {
         modal.style.display = "none";
         modalwrapper.style.display = "none";
         document.getElementById("send-code").style.display = "none";
@@ -331,13 +333,13 @@ async function checkOtp(event) {
         clearStatus();
       }, 2000);
     } else {
-      showModalStatus('incorrect token')
-      handleVerifyCode()
+      showModalStatus("incorrect token");
+      handleVerifyCode();
     }
   } catch (error) {
     console.error(error);
     showModalStatus("Something went wrong!");
-    handleVerifyCode()
+    handleVerifyCode();
     code.value = "";
   }
 }
@@ -357,7 +359,7 @@ closeButton.addEventListener("click", () => {
 var phoneNumberInput = document.getElementById("phone_number");
 
 //format phone number
-phoneNumberInput.addEventListener("input", function() {
+phoneNumberInput.addEventListener("input", function () {
   const formattedPhoneNumber = formatPhoneDisplay(phoneNumberInput.value);
   phoneNumberInput.value = formattedPhoneNumber;
 });
@@ -374,7 +376,6 @@ function formatPhoneDisplay(input) {
 
 //format the phone to send to twillio with +1 and as a string
 function formatPhoneTwilio(input) {
-
   //remove non digis and add country code
   const phoneDigits = input.replace(/\D/g, "");
   const formattedNumber = "+1" + phoneDigits;
@@ -383,25 +384,20 @@ function formatPhoneTwilio(input) {
 
 var emailInput = document.getElementById("email");
 
-
 //listen for input events and wait to format for 1.5s
-emailInput.addEventListener("input", function() {
+emailInput.addEventListener("input", function () {
   emailInput.classList.remove("invalid", "valid");
 
   setTimeout(() => {
     const email = emailInput.value;
 
     if (isEmailValid(email)) {
-
       // add valid class
       emailInput.classList.add("valid");
-
     } else if (email == "") {
-
       //remove all classes
       emailInput.classList.remove("invalid", "valid");
     } else {
-
       //invalid class
       emailInput.classList.add("invalid");
     }
@@ -419,138 +415,25 @@ indicators.forEach((item) => {
   item.style.minWidth = ((1 / indicators.length) * 100).toString() + "%";
 });
 
-// Webflow.push(function() {
+Webflow.push(function () {
+  $("form").submit(function () {
+    if (
+      phoneNumberInput.classList.contains("valid") &&
+      emailInput.classList.contains("valid")
+    ) {
+      //todo: add privacy policy check
+      return;
+    } else {
+      showError("Please complete both phone and email.");
+      return false;
+    }
+  });
+});
 
-//   $('form').submit(function() {
-//     if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
-
-//       //todo: add privacy policy check
-//       return;
-
-//     } else {
-//       showError('Please complete both phone and email.')
-//       return false
-//     }
-
-//   });
-// });
-
-const submitBtn = document.getElementById('submit_button')
+const submitBtn = document.getElementById("submit_button");
 
 //reset on reload
-window.onbeforeunload = function() {
-	const form = $("[id^='wf-form']")[0]
+window.onbeforeunload = function () {
+  const form = $("[id^='wf-form']")[0];
   form.reset();
-}
-
-
-var Webflow = Webflow || [];
-Webflow.push(function() {
-
-  $(document).off('submit')
-
-	// display error message
-	function displayError(message) {
-		hideLoading();
-		failureMessage.innerText = message;
-		failureMessage.style.display = 'block';
-	}
-
-	// hiding the loading indicator
-	function hideLoading() {
-		showForm();
-		successMessage.style.display = 'none';
-	}
-
-	// hide the form
-	function hideForm() {
-		form.style.display = 'none';
-	}
-
-	// show the loading indicator
-	function showLoading() {
-		hideForm();
-		successMessage.style.display = 'block';
-	}
-
-	// show the form
-	function showForm() {
-		form.style.display = 'block';
-	}
-
-	// listen for xhr events
-	function addListeners(xhr) {
-		xhr.addEventListener('loadstart', showLoading);
-	}
-
-	// add xhr settings
-	function addSettings(xhr) {
-		xhr.timeout = requestTimeout;
-	}
-
-	// triggered form submit 
-	function triggerSubmit(event) {
-
-		event.preventDefault();
-
-		// setup + send xhr request
-		let formData = new FormData(event.target);
-		let xhr = new XMLHttpRequest();
-
-    if (phoneNumberInput.classList.contains('valid') && emailInput.classList.contains('valid')) {
-
-
-
-      // original
-      // xhr.open('POST', event.srcElement.action);
-
-      //testing
-      xhr.open('POST', "https://eoyf4snr26od3cm.m.pipedream.net");
-
-      addListeners(xhr);
-      addSettings(xhr);
-      xhr.send(formData);
-
-      // capture xhr response
-      xhr.onload = function() {
-        if (xhr.status === 302) {
-          let data = JSON.parse(xhr.responseText);
-          console.log(data)
-          window.location.assign(event.srcElement.dataset.redirect + data.slug);
-        } else {
-          displayError(errorMessage);
-        }
-      }
-
-      // capture xhr request timeout
-      xhr.ontimeout = function() {
-        displayError(errorMessageTimedOut);
-      }
-
-    } else {
-      showError('Please complete both phone and email.')
-      return false
-    }
-
-	}
-
-  //find the form. Have to [0] bc ^= returns an object.
-	const form = $("[id^='wf-form']")[0]
-
-	// set the Webflow Error Message Div Block ID to 'error-message'
-	let failureMessage = document.getElementById('error-message');
-
-	// set the Webflow Success Message Div Block ID to 'success-message'
-	let successMessage = document.getElementById('success-message');
-
-	// set request timeout in milliseconds (1000ms = 1second)
-	let requestTimeout = 10000;
-
-	// error messages
-	let errorMessageTimedOut = 'Oops! Seems this timed out. Please try again.';
-	let errorMessage = 'Oops! Something went wrong. Please try again.';
-
-	// capture form submit
-	form.addEventListener('submit', triggerSubmit);
-
-});
+};
