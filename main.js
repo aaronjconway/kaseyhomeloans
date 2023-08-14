@@ -1,10 +1,6 @@
-console.log("version 1");
+console.log("version 2");
 
-/*  - do we need two observers?
- *  - do we need mutobs for formatting at all?
- *  why not event listenr on the slider instead.
- *  - should we observe on css:display changes or if visible
- *  - consolidate the modal and modalWrapper
+/*
  */
 
 const formWrapper = document.getElementById("form-steps-wrapper");
@@ -154,7 +150,6 @@ licenseOpenButton.addEventListener("click", () => {
   document.getElementById("license-modal").style.display = "block";
 });
 
-//modal div. TODO: refactor. why are there two
 const modal = document.getElementById("otp-modal");
 const modalwrapper = document.getElementById("otp-wrapper");
 
@@ -421,7 +416,6 @@ Webflow.push(function () {
       phoneNumberInput.classList.contains("valid") &&
       emailInput.classList.contains("valid")
     ) {
-      //todo: add privacy policy check
       return;
     } else {
       showError("Please complete both phone and email.");
